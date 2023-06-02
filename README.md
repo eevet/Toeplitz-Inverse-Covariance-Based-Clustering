@@ -6,10 +6,23 @@ The TICC method takes as input a T-by-n data matrix, a regularization parameter 
 
 Download & Setup
 ======================
-Download the source code, by running in the terminal:
-```
-git clone https://github.com/davidhallac/TICC.git
-```
+1. Download the source code, by running in the terminal:
+  ```shell
+  git clone https://github.com/eevet/Toeplitz-Inverse-Covariance-Based-Clustering ticc
+  ```
+1. Install [Poetry](https://python-poetry.org/)
+  ```shell
+  curl -sSL https://install.python-poetry.org | python3 -
+  ```
+1. Install the dependencies
+  ```shell
+  poetry install
+  ```
+1. Start a Poetry shell
+  ```shell
+  poetry shell
+  ```
+
 Files 
 ======================
 The TICC package has the following important files:
