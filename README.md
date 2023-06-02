@@ -14,13 +14,13 @@ Download & Setup
   ```shell
   curl -sSL https://install.python-poetry.org | python3 -
   ```
-3. Install the dependencies
-  ```shell
-  poetry install
-  ```
-4. Start a Poetry shell
+3. Start a Poetry shell
   ```shell
   poetry shell
+  ```
+4. Install the dependencies
+  ```shell
+  poetry install
   ```
 
 Files 
