@@ -23,8 +23,8 @@ import numpy
 from scipy.sparse import lil_matrix
 import sys
 import time
-import builtins
-import builtins as bt
+import __builtin__
+import __builtin__ as bt
 import code
 
 #######################################################################################################################################################################
@@ -111,7 +111,7 @@ class TGraphVX(TUNGraph):
     # functionality to Nodes() iterator of PUNGraph in Snap.py.
     def Nodes(self):
         ni = TUNGraph.BegNI(self)
-        for i in range(TUNGraph.GetNodes(self)):
+        for i in xrange(TUNGraph.GetNodes(self)):
             yield ni
             ni.Next()
 
@@ -119,7 +119,7 @@ class TGraphVX(TUNGraph):
     # functionality to Edges() iterator of PUNGraph in Snap.py.
     def Edges(self):
         ei = TUNGraph.BegEI(self)
-        for i in range(TUNGraph.GetEdges(self)):
+        for i in xrange(TUNGraph.GetEdges(self)):
             yield ei
             ei.Next()
 
@@ -148,7 +148,7 @@ class TGraphVX(TUNGraph):
                              Verbose)
             return
         if Verbose:
-            print('Serial ADMM')
+            print 'Serial ADMM'
         objective = 0
         constraints = []
         # Add all node objectives and constraints
@@ -196,7 +196,7 @@ class TGraphVX(TUNGraph):
         supergraph = TGraphVX()
         nidToSuperidMap = {}
         edgeToClusterTupMap = {}
-        for snid in range(builtins.len(superNodes)):
+        for snid in xrange(__builtin__.len(superNodes)):
             for nid in superNodes[snid]:
                 nidToSuperidMap[nid] = snid
         """collect the entities for the supergraph. a supernode is a subgraph. a superedge
@@ -258,7 +258,7 @@ class TGraphVX(TUNGraph):
                 else:
                     superNodeOffset = sum([superNodeVariables[supernid][k][2].size[0]* \
                                            superNodeVariables[supernid][k][2].size[1]\
-                                           for k in range(builtins.len(superNodeVariables[supernid])) ])
+                                           for k in xrange(__builtin__.len(superNodeVariables[supernid])) ])
                     superNodeVariables[supernid] += [(varId, superVarName, var, superNodeOffset)]
                     superNodeValues[supernid] = numpy.concatenate((superNodeValues[supernid],value))
                 
@@ -308,7 +308,7 @@ class TGraphVX(TUNGraph):
             num_processors = numProcessors
         rho = rho_param
         if verbose:
-            print('Distributed ADMM (%d processors)' % num_processors)
+            print 'Distributed ADMM (%d processors)' % num_processors
 
         # Organize information for each node in helper node_info structure
         node_info = {}
@@ -321,7 +321,7 @@ class TGraphVX(TUNGraph):
             obj = self.node_objectives[nid]
             variables = self.node_variables[nid]
             con = self.node_constraints[nid]
-            neighbors = [ni.GetNbrNId(j) for j in range(deg)]
+            neighbors = [ni.GetNbrNId(j) for j in xrange(deg)]
             # Node's constraints include those imposed by edges
             for neighborId in neighbors:
                 etup = self.__GetEdgeTup(nid, neighborId)
@@ -379,11 +379,11 @@ class TGraphVX(TUNGraph):
             info_edge = edge_info[etup]
             info_i = node_info[etup[0]]
             info_j = node_info[etup[1]]
-            for offset in range(info_i[X_LEN]):
+            for offset in xrange(info_i[X_LEN]):
                 row = info_edge[Z_ZIJIND] + offset
                 col = info_i[X_IND] + offset
                 A[row, col] = 1
-            for offset in range(info_j[X_LEN]):
+            for offset in xrange(info_j[X_LEN]):
                 row = info_edge[Z_ZJIIND] + offset
                 col = info_j[X_IND] + offset
                 A[row, col] = 1
@@ -392,12 +392,12 @@ class TGraphVX(TUNGraph):
         # Create final node_list structure by adding on information for
         # node neighbors
         node_list = []
-        for nid, info in node_info.items():
+        for nid, info in node_info.iteritems():
             entry = [nid, info[X_OBJ], info[X_VARS], info[X_CON], info[X_IND],\
                 info[X_LEN], info[X_DEG]]
             # Append information about z- and u-value indices for each
             # node neighbor
-            for i in range(info[X_DEG]):
+            for i in xrange(info[X_DEG]):
                 neighborId = info[X_NEIGHBORS][i]
                 indices = (Z_ZIJIND, Z_UIJIND) if nid < neighborId else\
                     (Z_ZJIIND, Z_UJIIND)
@@ -434,7 +434,7 @@ class TGraphVX(TUNGraph):
 
             if verbose:
                 # Debugging information prints current iteration #
-                print('Iteration %d' % num_iterations)
+                print 'Iteration %d' % num_iterations
             pool.map(ADMM_x, node_list)
             pool.map(ADMM_z, edge_list)
             pool.map(ADMM_u, edge_list)
@@ -493,10 +493,10 @@ class TGraphVX(TUNGraph):
         res_dual = norm(s)
         if verbose:
             # Debugging information to print convergence criteria values
-            print('  r:', res_pri)
-            print('  e_pri:', e_pri)
-            print('  s:', res_dual)
-            print('  e_dual:', e_dual)
+            print '  r:', res_pri
+            print '  e_pri:', e_pri
+            print '  s:', res_dual
+            print '  e_dual:', e_dual
         stop = (res_pri <= e_pri) and (res_dual <= e_dual)
         return (stop, res_pri, e_pri, res_dual, e_dual)
 
@@ -540,7 +540,7 @@ class TGraphVX(TUNGraph):
         # Check that the Variables of the new Objective are not currently
         # in other Objectives.
         new_variables = set(Objective.variables())
-        if builtins.len(self.all_variables.intersection(new_variables)) != 0:
+        if __builtin__.len(self.all_variables.intersection(new_variables)) != 0:
             raise Exception('Objective at NId %d shares a variable.' % NId)
         self.all_variables = self.all_variables | new_variables
 
@@ -829,8 +829,8 @@ class TGraphVX(TUNGraph):
                 #size of the supernode variables gets larger than clusterSize
                 while True:
                     if isOdd:
-                        if builtins.len(oddLevel) > 0:
-                            while builtins.len(oddLevel) > 0:
+                        if __builtin__.len(oddLevel) > 0:
+                            while __builtin__.len(oddLevel) > 0:
                                 topId = oddLevel.pop(0)
                                 node = TUNGraph.GetNI(self,topId)
                                 varSize = sum([variable[2].size[0]* \
@@ -840,27 +840,27 @@ class TGraphVX(TUNGraph):
                                     superNode.append(topId)
                                     superNodeSize = varSize + superNodeSize
                                 else:
-                                    if builtins.len(superNode) > 0:
+                                    if __builtin__.len(superNode) > 0:
                                         superNodes.append(superNode)
                                     superNodeSize = varSize
                                     superNode = [topId]
                                 neighbors = [node.GetNbrNId(j) \
-                                             for j in range(node.GetDeg())]
+                                             for j in xrange(node.GetDeg())]
                                 for nbrId in neighbors:
                                     if not visitedNode[nbrId]:
                                         evenLevel.append(nbrId)
                                         visitedNode[nbrId] = True
                             isOdd = False
                             #sort the nodes according to their variable size
-                            if builtins.len(evenLevel) > 0:
+                            if __builtin__.len(evenLevel) > 0:
                                 evenLevel.sort(key=lambda nid : sum([variable[2].size[0]* \
                                                variable[2].size[1] for variable \
                                                in self.node_variables[nid]]))
                         else:
                             break
                     else:
-                        if builtins.len(evenLevel) > 0:
-                            while builtins.len(evenLevel) > 0:
+                        if __builtin__.len(evenLevel) > 0:
+                            while __builtin__.len(evenLevel) > 0:
                                 topId = evenLevel.pop(0)
                                 node = TUNGraph.GetNI(self,topId)
                                 varSize = sum([variable[2].size[0]* \
@@ -870,19 +870,19 @@ class TGraphVX(TUNGraph):
                                     superNode.append(topId)
                                     superNodeSize = varSize + superNodeSize
                                 else:
-                                    if builtins.len(superNode) > 0:
+                                    if __builtin__.len(superNode) > 0:
                                         superNodes.append(superNode)
                                     superNodeSize = varSize
                                     superNode = [topId]
                                 neighbors = [node.GetNbrNId(j) \
-                                             for j in range(node.GetDeg())]
+                                             for j in xrange(node.GetDeg())]
                                 for nbrId in neighbors:
                                     if not visitedNode[nbrId]:
                                         oddLevel.append(nbrId)
                                         visitedNode[nbrId] = True
                             isOdd = True
                             #sort the nodes according to their variable size
-                            if builtins.len(oddLevel) > 0:
+                            if __builtin__.len(oddLevel) > 0:
                                 oddLevel.sort(key=lambda nid : sum([variable[2].size[0]* \
                                                variable[2].size[1] for variable \
                                                in self.node_variables[nid]]))
@@ -931,7 +931,7 @@ def SetRhoUpdateFunc(Func=None):
 # X_NEIGHBORS: Placeholder for information about each neighbors
 #   Information for each neighbor is two entries, appended in order.
 #   Starting index of the corresponding z-value in edge_z_vals. Then for u.
-(X_NID, X_OBJ, X_VARS, X_CON, X_IND, X_LEN, X_DEG, X_NEIGHBORS) = list(range(8))
+(X_NID, X_OBJ, X_VARS, X_CON, X_IND, X_LEN, X_DEG, X_NEIGHBORS) = range(8)
 
 # Tuple of indices to identify the information package for each edge.
 # Z_EID: Edge ID / tuple
@@ -943,7 +943,7 @@ def SetRhoUpdateFunc(Func=None):
 # Z_Z[IJ|JI]IND: Starting index into shared edge_z_vals Array for edge [ij|ji]
 # Z_U[IJ|JI]IND: Starting index into shared edge_u_vals Array for edge [ij|ji]
 (Z_EID, Z_OBJ, Z_CON, Z_IVARS, Z_ILEN, Z_XIIND, Z_ZIJIND, Z_UIJIND,\
-    Z_JVARS, Z_JLEN, Z_XJIND, Z_ZJIIND, Z_UJIIND) = list(range(13))
+    Z_JVARS, Z_JLEN, Z_XJIND, Z_ZJIIND, Z_UJIIND) = range(13)
 
 # Contain all x, z, and u values for each node and/or edge in ADMM. Use the
 # given starting index and length with getValue() to get individual node values
@@ -1004,7 +1004,7 @@ def ADMM_x(entry):
     
     #-----------------------Proximal operator ---------------------------
     x_update = [] # proximal update for the variable x
-    if(builtins.len(entry[1].args) > 1 ):
+    if(__builtin__.len(entry[1].args) > 1 ):
         # print 'we are in logdet + trace node'
         cvxpyMat = entry[1].args[1].args[0].args[0]
         numpymat = cvxpyMat.value
@@ -1012,7 +1012,7 @@ def ADMM_x(entry):
         mat_shape = ( int( numpymat.shape[1] *  ( numpymat.shape[1]+1 )/2.0 ) ,)
         a = numpy.zeros(mat_shape) 
 
-        for i in range(entry[X_DEG]):  
+        for i in xrange(entry[X_DEG]):  
             z_index = X_NEIGHBORS + (2 * i)
             u_index = z_index + 1
             zi = entry[z_index]
@@ -1184,14 +1184,14 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 
 
 
-	print("lam_sparse", lam_sparse)
-	print("switch_penalty", switch_penalty)
-	print("num_cluster", maxClusters - 1)
-	print("num stacked", num_stacked)
+	print "lam_sparse", lam_sparse
+	print "switch_penalty", switch_penalty
+	print "num_cluster", maxClusters - 1
+	print "num stacked", num_stacked
 
 
 	######### Get Date into proper format
-	print("completed getting the data")
+	print "completed getting the data"
 
 	Data = np.loadtxt(input_file, delimiter= ",") 
 	Data_pre = Data
@@ -1224,12 +1224,12 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		future_cost_vals = np.zeros(LLE_node_vals.shape)
 
 		##compute future costs
-		for i in range(T-2,-1,-1):
+		for i in xrange(T-2,-1,-1):
 			j = i+1
 			indicator = np.zeros(num_clusters)
 			future_costs = future_cost_vals[j,:]
 			lle_vals = LLE_node_vals[j,:]
-			for cluster in range(num_clusters):
+			for cluster in xrange(num_clusters):
 				total_vals = future_costs + lle_vals + switch_penalty
 				total_vals[cluster] -= switch_penalty
 				future_cost_vals[i,cluster] = np.min(total_vals)
@@ -1242,7 +1242,7 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		path[0] = curr_location
 
 		##compute the path
-		for i in range(T-1):
+		for i in xrange(T-1):
 			j = i+1
 			future_costs = future_cost_vals[j,:]
 			lle_vals = LLE_node_vals[j,:]
@@ -1260,10 +1260,10 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		"""
 		_,n = confusion_matrix.shape
 		path = []
-		for i in range(n):
+		for i in xrange(n):
 			max_val = -1e10
 			max_ind = -1
-			for j in range(n):
+			for j in xrange(n):
 				if j in path:
 					pass
 				else:
@@ -1279,7 +1279,7 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		computes the F1 scores and returns a list of values
 		"""
 		F1_score = np.zeros(num_cluster)
-		for cluster in range(num_cluster):
+		for cluster in xrange(num_cluster):
 			matched_cluster = matching_algo[cluster]
 			true_matrix = actual_clusters[cluster]
 			estimated_matrix = threshold_algo[matched_cluster]
@@ -1288,8 +1288,8 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 			TN = 0
 			FP = 0
 			FN = 0
-			for i in range(num_stacked*n):
-				for j in range(num_stacked*n):
+			for i in xrange(num_stacked*n):
+				for j in xrange(num_stacked*n):
 					if estimated_matrix[i,j] == 1 and true_matrix[i,j] != 0:
 						TP += 1.0
 					elif estimated_matrix[i,j] == 0 and true_matrix[i,j] == 0:
@@ -1299,8 +1299,8 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 					else:
 						FN += 1.0
 			precision = (TP)/(TP + FP)
-			print("cluster #", cluster)
-			print("TP,TN,FP,FN---------->", (TP,TN,FP,FN))
+			print "cluster #", cluster
+			print "TP,TN,FP,FN---------->", (TP,TN,FP,FN)
 			recall = TP/(TP + FN)
 			f1 = (2*precision*recall)/(precision + recall)
 			F1_score[cluster] = f1
@@ -1312,7 +1312,7 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		"""
 		seg_len = 400
 		true_confusion_matrix = np.zeros([num_clusters,num_clusters])
-		for point in range(bt.len(clustered_points_algo)):
+		for point in xrange(bt.len(clustered_points_algo)):
 			cluster = clustered_points_algo[point]
 
 
@@ -1371,12 +1371,12 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		"""
 		##Permute the matrix columns
 		permuted_confusion_matrix = np.zeros([num_clusters,num_clusters])
-		for cluster in range(num_clusters):
+		for cluster in xrange(num_clusters):
 			matched_cluster = matching[cluster]
 	 		permuted_confusion_matrix[:,cluster] = confusion_matrix[:,matched_cluster]
 	 	##Compute the F1 score for every cluster
 	 	F1_score = 0
-	 	for cluster in range(num_clusters):
+	 	for cluster in xrange(num_clusters):
 	 		TP = permuted_confusion_matrix[cluster,cluster]
 	 		FP = np.sum(permuted_confusion_matrix[:,cluster]) - TP
 	 		FN = np.sum(permuted_confusion_matrix[cluster,:]) - TP
@@ -1418,8 +1418,8 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 	cluster_mean_info = {}
 	cluster_mean_stacked_info = {}
 	old_clustered_points = np.zeros(10)
-	for iters in range(maxIters):
-		print("\n\n\nITERATION ###", iters)
+	for iters in xrange(maxIters):
+		print "\n\n\nITERATION ###", iters
 		num_clusters = maxClusters - 1
 
 		if iters == 0:
@@ -1442,9 +1442,9 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 			##Stack the complete data
 			complete_Data = np.zeros([m - num_stacked + 1, num_stacked*n])
 			len_data = m
-			for i in range(m - num_stacked + 1):
+			for i in xrange(m - num_stacked + 1):
 				idx = i
-				for k in range(num_stacked):
+				for k in xrange(num_stacked):
 					if i+k < len_data:
 						idx_k = i + k
 						complete_Data[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -1452,9 +1452,9 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 			##Stack the training data
 			complete_D_train = np.zeros([bt.len(training_idx), num_stacked*n])
 			len_training = bt.len(training_idx)
-			for i in range(bt.len(sorted_training_idx)):
+			for i in xrange(bt.len(sorted_training_idx)):
 				idx = sorted_training_idx[i]
-				for k in range(num_stacked):
+				for k in xrange(num_stacked):
 					if i+k < len_training:
 						idx_k = sorted_training_idx[i+k]
 						complete_D_train[i][k*n:(k+1)*n] =  Data[idx_k][0:n]
@@ -1473,7 +1473,7 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 			kmeans = KMeans(n_clusters = num_clusters,random_state = 0).fit(complete_D_train)
 			clustered_points_kmeans = kmeans.labels_
 			kmeans_clustered_pts = kmeans.labels_
-			print("completed INITIALIZATION")
+			print "completed INITIALIZATION"
 			true_confusion_matrix_g = compute_confusion_matrix(num_clusters,gmm_clustered_pts,sorted_training_idx)
 			true_confusion_matrix_k = compute_confusion_matrix(num_clusters,clustered_points_kmeans,sorted_training_idx)
 
@@ -1494,17 +1494,17 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 
 		##train_clusters holds the indices in complete_D_train 
 		##for each of the clusters
-		for cluster in range(num_clusters):
+		for cluster in xrange(num_clusters):
 			if len_train_clusters[cluster] != 0:
 				indices = train_clusters[cluster]
 
 
 				D_train = np.zeros([len_train_clusters[cluster],num_stacked*n])
-				for i in range(len_train_clusters[cluster]):
+				for i in xrange(len_train_clusters[cluster]):
 					point = indices[i]
 					D_train[i,:] = complete_D_train[point,:]
 
-				print("OPTIMIZATION for Cluster #", cluster,"DONE!!!")
+				print "OPTIMIZATION for Cluster #", cluster,"DONE!!!"
 				##Fit a model - OPTIMIZATION	
 				size_blocks = n
 				probSize = num_stacked * size_blocks
@@ -1541,28 +1541,28 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 
 		cluster_norms = list(np.zeros(num_clusters))
 
-		for cluster in range(num_clusters):
-			print("length of the cluster ", cluster,"------>", len_train_clusters[cluster])
+		for cluster in xrange(num_clusters):
+			print "length of the cluster ", cluster,"------>", len_train_clusters[cluster]
 		##Computing the norms
 		if iters != 0:
-			for cluster in range(num_clusters):
+			for cluster in xrange(num_clusters):
 				cluster_norms[cluster] = (np.linalg.norm(old_computed_covariance[num_clusters,cluster]),cluster)
 			sorted_cluster_norms = sorted(cluster_norms,reverse = True)
 
 		##Add a point to the empty clusters 
 		##Assumption more non empty clusters than empty ones
 		counter = 0
-		for cluster in range(num_clusters):
+		for cluster in xrange(num_clusters):
 			if len_train_clusters[cluster] == 0:
 				##Add a point to the cluster
 				while len_train_clusters[sorted_cluster_norms[counter][1]] == 0:
-					print("counter is:", counter)
+					print "counter is:", counter
 					counter += 1
 					counter = counter % num_clusters
-					print("counter is:", counter)
+					print "counter is:", counter
 
 				cluster_selected = sorted_cluster_norms[counter][1]
-				print("cluster that is zero is:", cluster, "selected cluster instead is:", cluster_selected)
+				print "cluster that is zero is:", cluster, "selected cluster instead is:", cluster_selected
 				break_flag = False
 				while not break_flag:
 					point_num = random.randint(0,bt.len(clustered_points))
@@ -1577,11 +1577,11 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 
 		old_train_clusters = train_clusters
 		old_computed_covariance = computed_covariance
-		print("UPDATED THE OLD COVARIANCE")
+		print "UPDATED THE OLD COVARIANCE"
 
 		inv_cov_dict = {}
 		log_det_dict = {}
-		for cluster in range(num_clusters):
+		for cluster in xrange(num_clusters):
 			cov_matrix = computed_covariance[num_clusters,cluster][0:(num_blocks-1)*n,0:(num_blocks-1)*n]
 			inv_cov_matrix = np.linalg.inv(cov_matrix)
 			log_det_cov = np.log(np.linalg.det(cov_matrix))# log(det(sigma2|1))
@@ -1590,13 +1590,13 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 
 		##Code -----------------------SMOOTHENING
 		##For each point compute the LLE 
-		print("beginning with the smoothening ALGORITHM")
+		print "beginning with the smoothening ALGORITHM"
 
 		LLE_all_points_clusters = np.zeros([bt.len(clustered_points),num_clusters])
-		for point in range(bt.len(clustered_points)):
+		for point in xrange(bt.len(clustered_points)):
 			# print "Point #", point
 			if point + num_stacked-1 < complete_D_train.shape[0]:
-				for cluster in range(num_clusters):
+				for cluster in xrange(num_clusters):
 					# print "\nCLuster#", cluster
 					cluster_mean = cluster_mean_info[num_clusters,cluster] 
 					cluster_mean_stacked = cluster_mean_stacked_info[num_clusters,cluster] 
@@ -1611,8 +1611,8 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		##Update cluster points - using NEW smoothening
 		clustered_points = updateClusters(LLE_all_points_clusters,switch_penalty = switch_penalty)
 
-		for cluster in range(num_clusters):
-			print("length of cluster #", cluster, "-------->", sum([x== cluster for x in clustered_points]))
+		for cluster in xrange(num_clusters):
+			print "length of cluster #", cluster, "-------->", sum([x== cluster for x in clustered_points])
 		true_confusion_matrix = np.zeros([num_clusters,num_clusters])
 
 		##Save a figure of segmentation
@@ -1621,7 +1621,7 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		plt.ylim((-0.5,num_clusters + 0.5))
 		if write_out_file: plt.savefig(str_NULL + "TRAINING_EM_lam_sparse="+str(lam_sparse) + "switch_penalty = " + str(switch_penalty) + ".jpg")
 		plt.close("all")
-		print("Done writing the figure")
+		print "Done writing the figure"
 
 		true_confusion_matrix = compute_confusion_matrix(num_clusters,clustered_points,sorted_training_idx)
 
@@ -1644,7 +1644,7 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		correct_EM = 0
 		correct_GMM = 0
 		correct_KMeans = 0
-		for cluster in range(num_clusters):
+		for cluster in xrange(num_clusters):
 			matched_cluster_EM = matching_EM[cluster]
 			matched_cluster_GMM = matching_GMM[cluster]
 			matched_cluster_Kmeans = matching_Kmeans[cluster]
@@ -1661,10 +1661,10 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 		f1_GMM_tr = -1#computeF1_macro(train_confusion_matrix_GMM,matching_GMM,num_clusters)
 		f1_kmeans_tr = -1#computeF1_macro(train_confusion_matrix_kmeans,matching_Kmeans,num_clusters)
 
-		print("\n\n\n")
+		print "\n\n\n"
 
 		if np.array_equal(old_clustered_points,clustered_points):
-			print("\n\n\n\nCONVERGED!!! BREAKING EARLY!!!")
+			print "\n\n\n\nCONVERGED!!! BREAKING EARLY!!!"
 			break
 		old_clustered_points = clustered_points
 
@@ -1676,13 +1676,13 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 	f1_GMM_tr = -1#computeF1_macro(train_confusion_matrix_GMM,matching_GMM,num_clusters)
 	f1_kmeans_tr = -1#computeF1_macro(train_confusion_matrix_kmeans,matching_Kmeans,num_clusters)
 
-	print("\n\n")
-	print("TRAINING F1 score:", f1_EM_tr, f1_GMM_tr, f1_kmeans_tr)
+	print "\n\n"
+	print "TRAINING F1 score:", f1_EM_tr, f1_GMM_tr, f1_kmeans_tr
 
 	correct_EM = 0
 	correct_GMM = 0
 	correct_KMeans = 0
-	for cluster in range(num_clusters):
+	for cluster in xrange(num_clusters):
 		matched_cluster_EM = matching_EM[cluster]
 		matched_cluster_GMM = matching_GMM[cluster]
 		matched_cluster_Kmeans = matching_Kmeans[cluster]
@@ -1696,10 +1696,10 @@ def solve(window_size = 10,number_of_clusters = 5, lambda_parameter = 11e-2, bet
 	binary_Kmeans = correct_KMeans/bt.len(training_idx)
 
 
-	print("lam_sparse", lam_sparse)
-	print("switch_penalty", switch_penalty)
-	print("num_cluster", maxClusters - 1)
-	print("num stacked", num_stacked)
+	print "lam_sparse", lam_sparse
+	print "switch_penalty", switch_penalty
+	print "num_cluster", maxClusters - 1
+	print "num stacked", num_stacked
 
 
 
