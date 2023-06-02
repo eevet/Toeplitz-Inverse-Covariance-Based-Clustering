@@ -10,15 +10,15 @@ Download & Setup
   ```shell
   git clone https://github.com/eevet/Toeplitz-Inverse-Covariance-Based-Clustering ticc
   ```
-1. Install [Poetry](https://python-poetry.org/)
+2. Install [Poetry](https://python-poetry.org/)
   ```shell
   curl -sSL https://install.python-poetry.org | python3 -
   ```
-1. Install the dependencies
+3. Install the dependencies
   ```shell
   poetry install
   ```
-1. Start a Poetry shell
+4. Start a Poetry shell
   ```shell
   poetry shell
   ```
